@@ -1,14 +1,18 @@
 
 package co.edu.unicauca.bancopreguntas.domain.services;
 
-import co.edu.unicauca.bancopreguntas.domain.entities.Pregunta;
-import co.edu.unicauca.bancopreguntas.domain.entities.PreguntaBuilder;
-import co.edu.unicauca.bancopreguntas.domain.repositories.PreguntaRepository;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import co.edu.unicauca.bancopreguntas.domain.entities.EstadoPregunta;
+import co.edu.unicauca.bancopreguntas.domain.entities.Pregunta;
+import co.edu.unicauca.bancopreguntas.domain.entities.PreguntaBuilder;
+import co.edu.unicauca.bancopreguntas.domain.repositories.PreguntaRepository;
 
 class PreguntaServiceTest {
 
@@ -22,10 +26,25 @@ class PreguntaServiceTest {
         private Pregunta preguntaGuardada;
         private int cantidadGuardados = 0;
 
-        @Override
+                @Override
         public void guardar(Pregunta pregunta) {
             this.preguntaGuardada = pregunta;
             cantidadGuardados++;
+        }
+
+        @Override
+        public void actualizarEstado(int preguntaId, EstadoPregunta nuevoEstado) {
+            if (preguntaGuardada != null && preguntaGuardada.getId() == preguntaId) {
+                preguntaGuardada.setEstado(nuevoEstado);
+            }
+        }
+
+        @Override
+        public Optional<Pregunta> buscarPorId(int id) {
+            if (preguntaGuardada != null && preguntaGuardada.getId() == id) {
+                return Optional.of(preguntaGuardada);
+            }
+            return Optional.empty();
         }
     }
 
@@ -229,7 +248,7 @@ class PreguntaServiceTest {
         );
     }
 
-    @Test
+        @Test
     void noDebeRegistrarDistractorNulo() {
         Pregunta pregunta = crearPreguntaValida();
         pregunta.setDistractor1(null);
@@ -240,5 +259,76 @@ class PreguntaServiceTest {
         );
 
         assertEquals(0, repositorio.cantidadGuardados);
+    }
+
+    // ---------- HU-02: Enviar a revisión ----------
+
+    @Test
+    void enviarARevision_autorNoPropietario_lanzaExcepcion() {
+        Pregunta pregunta = crearPreguntaValida();
+        pregunta.setId(100);
+        pregunta.setAutorId(1);
+        repositorio.guardar(pregunta);
+
+        Exception e = assertThrows(
+            IllegalArgumentException.class,
+            () -> preguntaService.enviarARevision(100, 2)
+        );
+
+        assertEquals(
+            "No tiene permisos para modificar el estado de esta pregunta",
+            e.getMessage()
+        );
+        assertEquals(EstadoPregunta.BORRADOR, pregunta.getEstado());
+    }
+
+    @Test
+    void enviarARevision_estadoNoBorrador_lanzaExcepcion() {
+        Pregunta pregunta = crearPreguntaValida();
+        pregunta.setId(100);
+        pregunta.setAutorId(1);
+        pregunta.setEstado(EstadoPregunta.PENDIENTE_REVISION);
+        repositorio.guardar(pregunta);
+
+        Exception e = assertThrows(
+            IllegalArgumentException.class,
+            () -> preguntaService.enviarARevision(100, 1)
+        );
+
+        assertEquals(
+            "Solo las preguntas en estado Borrador pueden enviarse a revisión",
+            e.getMessage()
+        );
+    }
+
+    @Test
+    void enviarARevision_desdeBorrador_cambiaAPendiente() {
+        Pregunta pregunta = crearPreguntaValida();
+        pregunta.setId(100);
+        pregunta.setAutorId(1);
+        repositorio.guardar(pregunta);
+
+        preguntaService.enviarARevision(100, 1);
+
+        assertEquals(EstadoPregunta.PENDIENTE_REVISION, pregunta.getEstado());
+    }
+
+    @Test
+    void enviarARevision_preguntaInexistente_lanzaExcepcion() {
+        Exception e = assertThrows(
+            IllegalArgumentException.class,
+            () -> preguntaService.enviarARevision(999, 1)
+        );
+
+        assertEquals("La pregunta no existe", e.getMessage());
+    }
+
+    @Test
+    void crearPregunta_dejaEstadoEnBorrador() {
+        Pregunta pregunta = crearPreguntaValida();
+
+        preguntaService.crearPregunta(pregunta, 1);
+
+        assertEquals(EstadoPregunta.BORRADOR, pregunta.getEstado());
     }
 }
