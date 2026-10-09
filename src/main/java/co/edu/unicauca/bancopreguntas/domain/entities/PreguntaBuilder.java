@@ -80,6 +80,7 @@ public class PreguntaBuilder {
     }
 
     public Pregunta build() {
+        pregunta.setEstado(EstadoPregunta.BORRADOR);
         return pregunta;
     }
 }
