@@ -1,8 +1,10 @@
 
 package co.edu.unicauca.bancopreguntas.domain.entities;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PreguntaBuilderTest {
 
@@ -56,5 +58,11 @@ class PreguntaBuilderTest {
                     pregunta.getNivelDificultad()),
             () -> assertEquals(1, pregunta.getAutorId())
         );
+    }
+        @Test
+    void debeCrearPreguntaEnEstadoBorrador() {
+        Pregunta pregunta = new PreguntaBuilder().build();
+
+        assertEquals(EstadoPregunta.BORRADOR, pregunta.getEstado());
     }
 }

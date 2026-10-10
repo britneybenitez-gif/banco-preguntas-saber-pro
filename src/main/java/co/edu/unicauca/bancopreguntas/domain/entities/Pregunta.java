@@ -21,6 +21,7 @@ public class Pregunta {
     private String nivelDificultad;
 
     private int autorId;
+    private EstadoPregunta estado;
 
     public Pregunta() {
     }
@@ -137,11 +138,19 @@ public class Pregunta {
         this.nivelDificultad = nivelDificultad;
     }
 
-    public int getAutorId() {
+     public int getAutorId() {
         return autorId;
     }
 
     public void setAutorId(int autorId) {
         this.autorId = autorId;
+    }
+
+    public EstadoPregunta getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoPregunta estado) {
+        this.estado = estado;
     }
 }

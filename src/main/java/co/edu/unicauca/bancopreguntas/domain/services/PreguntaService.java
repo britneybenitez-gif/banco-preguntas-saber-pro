@@ -1,15 +1,16 @@
 
 package co.edu.unicauca.bancopreguntas.domain.services;
 
-import co.edu.unicauca.bancopreguntas.domain.entities.Pregunta;
-import co.edu.unicauca.bancopreguntas.domain.repositories.PreguntaRepository;
-
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import co.edu.unicauca.bancopreguntas.domain.entities.EstadoPregunta;
+import co.edu.unicauca.bancopreguntas.domain.entities.Pregunta;
+import co.edu.unicauca.bancopreguntas.domain.repositories.PreguntaRepository;
 
 public class PreguntaService {
 
@@ -41,9 +42,15 @@ public class PreguntaService {
 
         pregunta.setAutorId(autorId);
 
+        pregunta.setEstado(EstadoPregunta.BORRADOR);
+
         preguntaRepository.guardar(pregunta);
     }
 
+    // HU-02: Enviar pregunta a revisión
+    public void enviarARevision(int preguntaId, int autorId) {
+    new EnviarARevisionTransicion(preguntaRepository).ejecutar(preguntaId, autorId);
+    }
     // Validaciones estructurales
     private void validarPregunta(Pregunta pregunta) {
 
