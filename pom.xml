@@ -24,15 +24,22 @@
         <junit.version>5.11.4</junit.version>
     </properties>
 
-    <!-- Dependencias del proyecto -->
+        <!-- Dependencias del proyecto -->
     <dependencies>
 
         <!-- JUnit 5 para pruebas unitarias -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
+            <version>5.10.2</version> <!-- O la versión que ya tengas -->
             <scope>test</scope>
+        </dependency>
+
+        <!-- ✅ AGREGA ESTO: Controlador de SQLite -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.45.1.0</version>
         </dependency>
 
     </dependencies>

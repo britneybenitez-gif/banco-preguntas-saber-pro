@@ -1,6 +1,7 @@
 
 package co.edu.unicauca.bancopreguntas.domain.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,8 +21,7 @@ class PreguntaServiceTest {
     private RepositorioSimulado repositorio;
 
     // Repositorio falso para probar sin SQLite
-    private static class RepositorioSimulado
-            implements PreguntaRepository {
+    private static class RepositorioSimulado implements PreguntaRepository {
 
         private Pregunta preguntaGuardada;
         private int cantidadGuardados = 0;
@@ -45,6 +45,19 @@ class PreguntaServiceTest {
                 return Optional.of(preguntaGuardada);
             }
             return Optional.empty();
+        }
+
+        @Override
+        public List<Pregunta> listarPorAutor(int autorId, List<EstadoPregunta> estadosFiltro, String nivelDificultad,
+                int offset, int limit) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'listarPorAutor'");
+        }
+
+        @Override
+        public int contarPorAutor(int autorId, List<EstadoPregunta> estadosFiltro, String nivelDificultad) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'contarPorAutor'");
         }
     }
 
