@@ -1,6 +1,10 @@
 
 package co.edu.unicauca.bancopreguntas.domain.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Pregunta {
 
     private int id;
@@ -22,6 +26,7 @@ public class Pregunta {
 
     private int autorId;
     private EstadoPregunta estado;
+    private List<Usuario> revisores = new ArrayList<>();
 
     public Pregunta() {
     }
@@ -152,5 +157,14 @@ public class Pregunta {
 
     public void setEstado(EstadoPregunta estado) {
         this.estado = estado;
+    }
+
+    /** Revisores asignados por el administrador (vacío mientras no se asignen). */
+    public List<Usuario> getRevisores() {
+        return Collections.unmodifiableList(revisores);
+    }
+
+    public void setRevisores(List<Usuario> revisores) {
+        this.revisores = new ArrayList<>(revisores);
     }
 }
