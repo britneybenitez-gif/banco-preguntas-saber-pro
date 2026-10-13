@@ -20,7 +20,7 @@
     <!-- Configuracion de Java y versiones -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
         <junit.version>5.11.4</junit.version>
     </properties>
 
@@ -41,7 +41,7 @@
     <build>
         <plugins>
 
-            <!-- Compilador Java 17 -->
+            <!-- Compilador Java 25 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
