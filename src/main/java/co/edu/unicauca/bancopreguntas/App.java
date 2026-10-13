@@ -1,19 +1,21 @@
 package co.edu.unicauca.bancopreguntas;
 
-import java.util.Optional;
-
-import javax.swing.JFrame;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import co.edu.unicauca.bancopreguntas.domain.entities.EstadoPregunta;
-import co.edu.unicauca.bancopreguntas.domain.entities.Pregunta;
-import co.edu.unicauca.bancopreguntas.domain.repositories.PreguntaRepository;
+import co.edu.unicauca.bancopreguntas.dataaccess.DatosDemo;
+import co.edu.unicauca.bancopreguntas.dataaccess.NotificadorEmailSimulado;
+import co.edu.unicauca.bancopreguntas.dataaccess.PreguntaRepositoryMemoria;
+import co.edu.unicauca.bancopreguntas.dataaccess.UsuarioRepositoryMemoria;
+import co.edu.unicauca.bancopreguntas.domain.entities.Usuario;
+import co.edu.unicauca.bancopreguntas.domain.services.AsignacionRevisorService;
+import co.edu.unicauca.bancopreguntas.domain.services.ConsultaPreguntaService;
 import co.edu.unicauca.bancopreguntas.domain.services.PreguntaService;
-import co.edu.unicauca.bancopreguntas.presentation.controllers.PreguntaController;
-import co.edu.unicauca.bancopreguntas.presentation.views.CrearPreguntaPanel;
+import co.edu.unicauca.bancopreguntas.presentation.views.VentanaPrincipal;
 
+/** Raíz de composición: crea los repositorios, servicios y abre la ventana principal. */
 public class App {
 
     public static void main(String[] args) {
@@ -23,44 +25,41 @@ public class App {
         } catch (Exception ignored) {}
 
         // Ejecutar en el hilo de despacho de eventos de Swing (EDT)
-        SwingUtilities.invokeLater(() -> {
-            // 1. Repositorio temporal (Stub) para probar la interfaz visual
-            PreguntaRepository repoTemp = new PreguntaRepository() {
-                @Override
-                public void guardar(Pregunta p) {
-                    JOptionPane.showMessageDialog(
-                        null, 
-                        "¡Pregunta guardada con éxito en el sistema!", 
-                        "Éxito", 
-                        JOptionPane.INFORMATION_MESSAGE
-                    );
-                }
+        SwingUtilities.invokeLater(App::iniciar);
+    }
 
-                @Override
-                public void actualizarEstado(int preguntaId, EstadoPregunta nuevoEstado) {}
+    private static void iniciar() {
+        // 1. Capa de acceso a datos (en memoria; se puede cambiar por JDBC/SQLite sin tocar el dominio)
+        PreguntaRepositoryMemoria preguntaRepo = new PreguntaRepositoryMemoria();
+        UsuarioRepositoryMemoria usuarioRepo = new UsuarioRepositoryMemoria();
 
-                @Override
-                public Optional<Pregunta> buscarPorId(int id) {
-                    return Optional.empty();
-                }
-            };
+        // 2. Capa de dominio (servicios)
+        PreguntaService preguntaService = new PreguntaService(preguntaRepo);
+        ConsultaPreguntaService consultaService = new ConsultaPreguntaService(preguntaRepo);
+        AsignacionRevisorService asignacionService = new AsignacionRevisorService(
+                preguntaRepo, preguntaRepo, preguntaRepo, usuarioRepo, new NotificadorEmailSimulado());
 
-            // 2. Instanciar el servicio y el controlador
-            PreguntaService service = new PreguntaService(repoTemp);
-            PreguntaController controller = new PreguntaController(service);
+        // Preguntas de ejemplo para probar paginación, filtros y estados (opcional)
+        DatosDemo.cargar(preguntaService, 1, 6);
 
-            // 3. Crear la ventana principal (JFrame)
-            JFrame frame = new JFrame("Banco de Preguntas Saber Pro - Gestión de Preguntas (HU-01)");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(750, 850);
-            frame.setLocationRelativeTo(null);
+        // 3. Capa de presentación
+        iniciarSesion(usuarioRepo.listarTodos(), preguntaService, consultaService, asignacionService);
+    }
 
-            // 4. Agregar el panel de creación de preguntas
-            CrearPreguntaPanel panelCrear = new CrearPreguntaPanel(controller);
-            frame.add(panelCrear);
+    private static void iniciarSesion(java.util.List<Usuario> usuarios,
+                                      PreguntaService preguntaService,
+                                      ConsultaPreguntaService consultaService,
+                                      AsignacionRevisorService asignacionService) {
+        JComboBox<Usuario> combo = new JComboBox<>(usuarios.toArray(new Usuario[0]));
+        int opcion = JOptionPane.showConfirmDialog(null, combo, "Ingresar como",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (opcion != JOptionPane.OK_OPTION) {
+            System.exit(0);
+        }
+        Usuario usuario = (Usuario) combo.getSelectedItem();
 
-            // 5. Hacer visible la ventana
-            frame.setVisible(true);
-        });
+        new VentanaPrincipal(usuario, preguntaService, consultaService, asignacionService,
+                () -> iniciarSesion(usuarios, preguntaService, consultaService, asignacionService))
+                .setVisible(true);
     }
 }

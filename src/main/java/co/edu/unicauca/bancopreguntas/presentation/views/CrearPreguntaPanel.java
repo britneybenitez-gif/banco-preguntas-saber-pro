@@ -20,6 +20,7 @@ import co.edu.unicauca.bancopreguntas.presentation.controllers.PreguntaControlle
 public class CrearPreguntaPanel extends JPanel {
 
     private final PreguntaController controller;
+    private final int autorId;
 
     private JTextArea txtContexto;
     private JTextArea txtPreguntaDirecta;
@@ -27,7 +28,7 @@ public class CrearPreguntaPanel extends JPanel {
     private JTextField txtDistractor2;
     private JTextField txtDistractor3;
     private JTextField txtDistractor4;
-    private JTextField txtRespuestaCorrecta;
+    private JComboBox<String> cmbRespuestaCorrecta;
     private JTextArea txtJustificacion;
     private JTextField txtBibliografia;
     private JTextField txtCompetencia;
@@ -36,8 +37,9 @@ public class CrearPreguntaPanel extends JPanel {
     private JComboBox<String> cmbDificultad;
     private JButton btnGuardar;
 
-    public CrearPreguntaPanel(PreguntaController controller) {
+    public CrearPreguntaPanel(PreguntaController controller, int autorId) {
         this.controller = controller;
+        this.autorId = autorId;
         setLayout(new BorderLayout());
         initComponents();
     }
@@ -58,7 +60,7 @@ public class CrearPreguntaPanel extends JPanel {
         addField(formPanel, gbc, row++, "Distractor 2 (Opción B):", txtDistractor2 = new JTextField(20));
         addField(formPanel, gbc, row++, "Distractor 3 (Opción C):", txtDistractor3 = new JTextField(20));
         addField(formPanel, gbc, row++, "Distractor 4 (Opción D):", txtDistractor4 = new JTextField(20));
-        addField(formPanel, gbc, row++, "Respuesta Correcta:", txtRespuestaCorrecta = new JTextField(20));
+        addField(formPanel, gbc, row++, "Respuesta Correcta:", cmbRespuestaCorrecta = new JComboBox<>(new String[]{"A", "B", "C", "D"}));
         addField(formPanel, gbc, row++, "Justificación:", txtJustificacion = new JTextArea(3, 20));
         addField(formPanel, gbc, row++, "Bibliografía:", txtBibliografia = new JTextField(20));
         addField(formPanel, gbc, row++, "Competencia:", txtCompetencia = new JTextField(20));
@@ -102,7 +104,6 @@ public class CrearPreguntaPanel extends JPanel {
 
     private void ejecutarGuardado() {
         try {
-            // Pasamos un ID de autor fijo por defecto (ej. 1) mientras se integra la sesión de usuario
             controller.guardarPregunta(
                 txtContexto.getText(),
                 txtPreguntaDirecta.getText(),
@@ -110,14 +111,14 @@ public class CrearPreguntaPanel extends JPanel {
                 txtDistractor2.getText(),
                 txtDistractor3.getText(),
                 txtDistractor4.getText(),
-                txtRespuestaCorrecta.getText(),
+                (String) cmbRespuestaCorrecta.getSelectedItem(),
                 txtJustificacion.getText(),
                 txtBibliografia.getText(),
                 txtCompetencia.getText(),
                 txtTema.getText(),
                 txtSubtema.getText(),
                 (String) cmbDificultad.getSelectedItem(),
-                1 
+                autorId
             );
 
             JOptionPane.showMessageDialog(this, "¡Pregunta guardada en borrador exitosamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -135,7 +136,7 @@ public class CrearPreguntaPanel extends JPanel {
         txtDistractor2.setText("");
         txtDistractor3.setText("");
         txtDistractor4.setText("");
-        txtRespuestaCorrecta.setText("");
+        cmbRespuestaCorrecta.setSelectedIndex(0);
         txtJustificacion.setText("");
         txtBibliografia.setText("");
         txtCompetencia.setText("");
