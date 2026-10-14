@@ -16,3 +16,8 @@ Los repositorios y el notificador son interfaces del dominio; `dataaccess` trae 
 
 ## Ejecución
 `App` pide el usuario con el que ingresar (autor, administrador). Carga preguntas de ejemplo con `DatosDemo` (quitar la llamada en `App` para empezar vacío).
+
+## 📄 Documentación y Video de Sustentación
+
+* **Video de Sustentación (YouTube):** [Ver video aquí](https://youtu.be/m5YG1WERcLg)
+* ** Documento PDF:** [Ver documento aquí](docs/Sprint.pdf)
