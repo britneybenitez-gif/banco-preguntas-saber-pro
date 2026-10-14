@@ -25,6 +25,12 @@ public class PreguntaRepositorySQLite implements PreguntaRepository {
     }
 
     private void inicializarBaseDeDatos() {
+         try {
+            // Esta línea fuerza a Java a cargar el driver de SQLite
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver de SQLite no encontrado. Verifica la dependencia en pom.xml", e);
+        }
         String sql = "CREATE TABLE IF NOT EXISTS preguntas (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "autor_id INTEGER NOT NULL, " +
